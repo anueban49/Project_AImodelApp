@@ -16,10 +16,10 @@ const buttons: ActiveBtn[] = [
 export function SoligddogTovcuud() {
   const [active, setActive] = useState<ActiveBtn>("Image analysis");
   const [preview, setPreview] = useState<string | null>(null);
-  const [filename, setFilename] = useState<string | null>(null);
   const inputRef = useRef<any>(null);
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState("");
+  const [file, setFile] = useState<File | null>(null);
   const { theme } = useTheme();
 
   const handleFile = (file: File) => {
@@ -27,10 +27,8 @@ export function SoligddogTovcuud() {
     if (!file.type.startsWith("image/")) {
       return;
     }
-    setFilename(file.name);
-    const reader = new FileReader();
-    reader.onload = () => setPreview(reader.result as string);
-    reader.readAsDataURL(file);
+    setPreview(URL.createObjectURL(file));
+    setFile(file);
   };
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -46,8 +44,11 @@ export function SoligddogTovcuud() {
     }
   };
   const clear = () => {
+    if (preview) {
+      URL.revokeObjectURL(preview);
+    }
     setPreview(null);
-    setFilename(null);
+    setFile(null);
   };
   const handleGenerate = async () => {
     setLoading(true);
@@ -59,15 +60,18 @@ export function SoligddogTovcuud() {
         );
       }
 
-      const output = await inputRef.current(preview);
+      const output = await inputRef.current(file);
 
       if (Array.isArray(output) && output.length > 0) {
         const caption = (output[0] as { generated_text: string })
           .generated_text;
         setResult(caption);
+        console.log(caption);
       }
     } catch (error) {
       console.error(error);
+    } finally {
+      setLoading(false);
     }
   };
   const ZuragAnaliiz = () => {
@@ -80,13 +84,9 @@ export function SoligddogTovcuud() {
           </h1>
 
           <div
-            onClick={() => {
-              inputRef.current?.click();
-            }}
             onDrop={handleDrop}
             onDragOver={(e) => {
-              e.preventDefault;
-              clear();
+              e.preventDefault();
             }}
             className={`w-full aspect-5/2 inset-shadow-sm relative overflow-hidden rounded-2xl flex flex-col gap-4 justify-center items-center ${theme === "dark" ? "dark inset-shadow-sm inset-shadow-black" : "light inset-shadow-gray-500/50"}`}
           >
@@ -103,7 +103,7 @@ export function SoligddogTovcuud() {
                 </button>
                 <button
                   onClick={() => {
-                    handleGenerate;
+                    handleGenerate();
                   }}
                   className={`uploadBtn
                     p-2 text-sm rounded-2xl flex gap-2 absolute bottom-2 hover:opacity-55  shadow-md ${theme === "dark" ? "dark shadow-black" : "light  shadow-gray-400"}`}
