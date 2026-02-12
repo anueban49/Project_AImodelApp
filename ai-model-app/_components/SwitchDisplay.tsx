@@ -1,10 +1,12 @@
 "use client";
 import { useState, useRef, ReactEventHandler } from "react";
-import { FileUpIcon, Sparkle, Sparkles, X } from "lucide-react";
+import { FileUpIcon, LoaderCircle, Sparkle, Sparkles, X } from "lucide-react";
 import { FileText } from "lucide-react";
 import { FileInput } from "lucide-react";
 import { useTheme } from "../ContextProviders/ThemeProvider";
 import { pipeline } from "@huggingface/transformers";
+import { Loader } from "lucide-react";
+import { ChatBalls } from "./chatballs";
 type ActiveBtn = "Image analysis" | "Ingredient recognition" | "Image creator";
 
 const buttons: ActiveBtn[] = [
@@ -18,16 +20,18 @@ export function SoligddogTovcuud() {
   const [preview, setPreview] = useState<string | null>(null);
   const inputRef = useRef<any>(null);
   const [loading, setLoading] = useState(false);
-  const [result, setResult] = useState("");
+  const [result, setResult] = useState<string>("");
   const [file, setFile] = useState<File | null>(null);
   const { theme } = useTheme();
+  const [clicked, setClicked] = useState(false);
 
   const handleFile = (file: File) => {
     //essentially reads the file that has been put into the input and converts it into a string?
     if (!file.type.startsWith("image/")) {
       return;
     }
-    setPreview(URL.createObjectURL(file));
+    const url = URL.createObjectURL(file);
+    setPreview(url);
     setFile(file);
   };
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -36,19 +40,11 @@ export function SoligddogTovcuud() {
       handleFile(file);
     }
   };
-  const handleDrop = (e: React.DragEvent) => {
-    e.preventDefault();
-    const file = e.dataTransfer.files?.[0];
-    if (file) {
-      handleFile(file);
-    }
-  };
   const clear = () => {
-    if (preview) {
-      URL.revokeObjectURL(preview);
-    }
     setPreview(null);
     setFile(null);
+    setResult("");
+    setClicked(false);
   };
   const handleGenerate = async () => {
     setLoading(true);
@@ -60,16 +56,16 @@ export function SoligddogTovcuud() {
         );
       }
 
-      const output = await inputRef.current(file);
+      const output = await inputRef.current(preview);
 
       if (Array.isArray(output) && output.length > 0) {
         const caption = (output[0] as { generated_text: string })
           .generated_text;
         setResult(caption);
-        console.log(caption);
       }
     } catch (error) {
       console.error(error);
+      setLoading(false);
     } finally {
       setLoading(false);
     }
@@ -80,11 +76,10 @@ export function SoligddogTovcuud() {
         <div className="flex flex-col gap-4">
           <h1 className="flex gap-4 font-bold">
             <Sparkles />
-            Хараад Мэдэхгүй байгаа зургаа танюулдаг хэсэг
+            Robotond zurag ogood taniuldag heseg
           </h1>
 
           <div
-            onDrop={handleDrop}
             onDragOver={(e) => {
               e.preventDefault();
             }}
@@ -92,24 +87,34 @@ export function SoligddogTovcuud() {
           >
             {preview ? (
               <>
-                <img src={preview} className="object-cover object-center" />
-                <button
-                  className={`p-2 rounded-full aspect-square absolute top-2 right-2 hover:opacity-55 ${theme === "dark" ? "dark " : "light "}`}
-                  onClick={() => {
-                    clear();
-                  }}
-                >
-                  <X />
-                </button>
-                <button
-                  onClick={() => {
-                    handleGenerate();
-                  }}
-                  className={`uploadBtn
+                {loading ? (
+                  <>
+                    <LoaderCircle className="animate-spin" />
+                    <p>Loading...</p>
+                  </>
+                ) : (
+                  <>
+                    <img src={preview} className="object-cover object-center" />
+                    <button
+                      className={`p-2 rounded-full aspect-square absolute top-2 right-2 hover:opacity-55 ${theme === "dark" ? "dark " : "light "}`}
+                      onClick={() => {
+                        clear();
+                      }}
+                    >
+                      <X />
+                    </button>
+                    <button
+                      onClick={() => {
+                        handleGenerate();
+                        setClicked(true);
+                      }}
+                      className={`uploadBtn ${clicked && "hidden"}
                     p-2 text-sm rounded-2xl flex gap-2 absolute bottom-2 hover:opacity-55  shadow-md ${theme === "dark" ? "dark shadow-black" : "light  shadow-gray-400"}`}
-                >
-                  <FileUpIcon />
-                </button>
+                    >
+                      <FileUpIcon />
+                    </button>
+                  </>
+                )}
               </>
             ) : (
               <>
@@ -136,9 +141,17 @@ export function SoligddogTovcuud() {
           </div>
           <h1 className="flex font-bold gap-4">
             <FileText />
-            Yu yu bn
+            Robotiin hariu(?)
           </h1>
-          <p>{result}</p>
+          {loading ? (
+            <>Loading...</>
+          ) : (
+            <p
+              className={`py-2 px-4 rounded-xl inset-shadow-sm ${theme === "dark" ? "dark inset-shadow-black" : "light inset-shadow-gray-300"}`}
+            >
+              {result ? <>{result}...?</> : <></>}
+            </p>
+          )}
         </div>
       </>
     );
@@ -175,6 +188,7 @@ export function SoligddogTovcuud() {
         ))}
       </div>
       <RenderContent />
+      <ChatBalls/>
     </>
   );
 }

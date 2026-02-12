@@ -110,3 +110,16 @@ body {
 .uploadBtn:hover {
   animation-play-state: paused;
 }
+
+@keyframes chatOpen {
+  0% {
+    top: 100%;
+  }
+  100% {
+    bottom: 2em;
+  }
+}
+.chatOngoi {
+  animation: chatOpen;
+  transition: ease-in-out 0.3s;
+}
