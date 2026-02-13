@@ -56,7 +56,12 @@ export function SoligddogTovcuud() {
         );
       }
 
-      const output = await inputRef.current(preview);
+      const output = await inputRef.current(preview, {
+        max_new_tokens: 100,
+        temperature: 0.7,
+        context: "give me more detailed response",
+        num_sms: 4,
+      });
 
       if (Array.isArray(output) && output.length > 0) {
         const caption = (output[0] as { generated_text: string })

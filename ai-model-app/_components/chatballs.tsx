@@ -3,7 +3,6 @@ import { useState, useEffect, ReactEventHandler } from "react";
 import { ReactNode } from "react";
 import { useTheme } from "../ContextProviders/ThemeProvider";
 import { MessageCircle } from "lucide-react";
-import "animate.css";
 //flow: use sends message -> sent to ai model
 export function msgBox({ children }: { children: ReactNode }) {
   //takes user message and displays it.
