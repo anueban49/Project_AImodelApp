@@ -123,3 +123,7 @@ body {
   animation: chatOpen;
   transition: ease-in-out 0.3s;
 }
+
+.no-scrollbar {
+  scrollbar-width: none;
+}

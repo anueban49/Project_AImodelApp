@@ -4,68 +4,117 @@ import { ReactNode } from "react";
 import { useTheme } from "../ContextProviders/ThemeProvider";
 import { MessageCircle } from "lucide-react";
 //flow: use sends message -> sent to ai model
-export function msgBox({ children }: { children: ReactNode }) {
-  //takes user message and displays it.
-  return (
-    <>
-      <div className={`rounded-2xl p-2`}>{children}</div>
-    </>
-  );
+
+interface ChatBubble {
+  role: "model" | "user";
+  content: string;
 }
-type msgtype = {
-  messages: string[];
-};
-type chatHistorType = {
-  role: "ai" | "user";
-  chats: msgtype[];
-};
-const saveMsgs = sessionStorage.setItem;
-export const ChatBalls = () => {
+
+export function Messaaj() {
   const { theme } = useTheme();
   const [open, setOpen] = useState(false);
-  const [inputValue, setInputValue] = useState("");
-
-  const [msgs, setMsgs] = useState<chatHistorType>([]);
-  const saved: msgtype = sessionStorage.getItem("chatHistory");
-  saved ? setMsgs(saved) : [];
-  const ChathesegOngoihHaah = () => {
-    setOpen((prev) => !prev);
+  const [inputValue, setInputValue] = useState<string | "">("");
+  const [chats, setChats] = useState<ChatBubble[]>([]);
+  const [usermsg, setuUsermsg] = useState("");
+  const [loading, setLoading] = useState(false);
+  const handleSend = async (input: string) => {
+    const userChat = input.trim();
+    if (!userChat) {
+      return;
+    }
+    setLoading(true);
+    setChats((prev) => [...prev, { role: "user", content: userChat }]);
+    setInputValue("");
+    try {
+      const response = await fetch("/api/chat", {
+        method: "POST",
+        headers: {
+          "Content-type": "application/json",
+        },
+        body: JSON.stringify({ chats: { role: "user", content: userChat } }),
+      });
+      if (!response.ok) {
+        console.log("response not ok");
+      }
+      const data = await response.json();
+      console.log(response)
+      setChats((prev) => [...prev, { role: "model", content: data.message }]);
+    } catch (e) {
+      console.error(e);
+      setChats((prev) => [
+        ...prev,
+        {
+          role: "model",
+          content: "Sorry something went wrong, please try again",
+        },
+      ]);
+    } finally {
+      setLoading(false);
+    }
   };
-  function Messaaj() {
-    return (
-      <>
-        <div
-          className={` ${open ? "chatOngoi" : "hidden "} absolute right-5 bottom-18 
+  return (
+    <>
+      <div
+        className={` absolute right-5 bottom-18 
             w-1/4 aspect-2/3 rounded-2xl shadow-sm ${theme === "dark" ? "dark shadow-black" : "light shadow-gray-300"}`}
-        >
-          <div className="absolute bottom-2 w-full px-2">
+      >
+        <div className={`p-2 overflow-y-scroll no-scrollbar`}>
+          {chats.map((chat, index) => (
+            <div
+              className={` p-2 rounded-2xl text-sm felc flex-col ${chat.role === "user" ? "justify-end bg-gray-200" : "justify-start bg-gray-500"}`}
+              key={index}
+            >
+              {chat.content}
+            </div>
+          ))}
+        </div>
+        <div className="absolute bottom-2 w-full px-2">
+          <div className="flex gap-2">
             <input
               type="text"
+              value={inputValue}
               onChange={(e) => {
                 setInputValue(e.target.value);
               }}
-              onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => {
-                if (e.key === "Enter") {
-                  console.log("typed");
-                }
-              }}
-              placeholder="Enter daraad chataa yvuul"
+              placeholder="type anything..."
               className={`
                 w-full  rounded-2xl border-transparent px-3 py-2 focus:outline-none inset-shadow-sm  ${theme === "dark" ? "dark inset-shadow-black" : "light inset-shadow-gray-300"}`}
             ></input>
+            <button
+              disabled={loading}
+              onClick={() => {
+                handleSend(inputValue);
+              }}
+              className={`px-2 py-1 rounded-2xl text-sm shadow-md ${theme === "dark" ? "dark shdaow-black" : "light shadow-gray-300"} disabled:opacity-50 disabled:cursor-not-allowed`}
+            >
+              Send
+            </button>
           </div>
-          <div className="msgcontent"></div>
         </div>
-      </>
-    );
-  }
+        <div className="msgcontent"></div>
+      </div>
+    </>
+  );
+}
+export const ChatBalls = () => {
+  const { theme } = useTheme();
+  const [open, setOpen] = useState(false);
+  const [inputValue, setInputValue] = useState<string | "">("");
+  const [chats, setChats] = useState<ChatBubble[]>([]);
+  const [usermsg, setuUsermsg] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  const toggle = () => {
+    setOpen((prev) => !prev);
+    console.log(open);
+  };
 
   return (
     <div className="w-screen h-screen">
-      <Messaaj />
+      {open ? <Messaaj /> : <></>}
       <button
         onClick={() => {
-          ChathesegOngoihHaah();
+          toggle();
         }}
         className={` ${theme === "dark" ? "dark shadow-black" : "light shadow-gray-300"} hover:bottom-6 ease-in duration-100
             w-10 aspect-square p-2 rounded-full absolute right-5 bottom-5 shadow-md  hover:bg-gray-100`}
