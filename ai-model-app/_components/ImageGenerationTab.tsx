@@ -8,12 +8,34 @@ export const ImageGenerationTab = () => {
   const { theme } = useTheme();
 
   const handleGenerate = async () => {
-    const res = await "/api/chat";
+    try {
+      if (inputValue === "") {
+        return;
+      }
+      const userprompt = inputValue.trim();
+
+      const res = await fetch("/api/img", {
+        method: "POST",
+        headers: {
+          "Content-type": "application/json",
+        },
+        body: JSON.stringify({ prompt: userprompt }),
+      });
+      //the ai is supposedly have to send url... right?
+      const data = await res.json();
+      if (data.success) {
+        setImage(`data:${data.mimeType};base64${data.image}`);
+      }
+    } catch (error) {
+      console.log(error);
+    }
   };
   return (
     <>
       <div className={`flex flex-col gap-4`}>
-        <p className={`${theme === "dark" ? "dark" : "light"}`}>
+        <p
+          className={`${theme === "dark" ? "" : ""} flex gap-4 py-2 font-bold`}
+        >
           <Sparkles />
           Image Generation
         </p>
@@ -22,7 +44,7 @@ export const ImageGenerationTab = () => {
             setInputValue(e.target.value);
           }}
           rows={8}
-          className={` w-full aspect-9/1 rounded-2xl inset-shadow-sm ${theme === "dark" ? "dark inset-shadow-black" : "light inset-shadow-gray-500/50"}`}
+          className={` w-full aspect-9/1 rounded-2xl inset-shadow-sm p-2 resize-none no-scrollbar ${theme === "dark" ? "dark inset-shadow-black" : "light inset-shadow-gray-500/50"}`}
           placeholder="Describe your prompt"
         ></textarea>
         <button
@@ -33,7 +55,13 @@ export const ImageGenerationTab = () => {
         >
           Generate
         </button>
-        <div></div>
+        {image ? (
+          <div className={`w-full aspect-4/3 rounded-2xl overflow-clip`}>
+            <img src={image} />
+          </div>
+        ) : (
+          <>No Image Generated</>
+        )}
       </div>
     </>
   );

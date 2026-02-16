@@ -2,7 +2,6 @@
 import { useState, useRef, ReactEventHandler } from "react";
 
 import { useTheme } from "../ContextProviders/ThemeProvider";
-
 import { ChatBalls } from "./chatballs";
 import { ImageAnalysisTab } from "./ImageAnalysis";
 import { IngredientRecTab } from "./IngredientRecognitionTab";
@@ -14,6 +13,10 @@ const buttons: ActiveBtn[] = [
   "Ingredient recognition",
   "Image creator",
 ];
+
+export const test = () => {
+  
+}
 
 export function SoligddogTovcuud() {
   const [active, setActive] = useState<ActiveBtn>("Image analysis");
