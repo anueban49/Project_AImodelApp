@@ -20,7 +20,7 @@ export const POST = async (request: NextRequest) => {
       model: "gemini-2.5-flash",
       contents: prompt,
       config: {
-        systemInstruction: "Only list ingredients from the prompt.",
+        systemInstruction: "You are a culinary expert and your main job is to list the ingredients according to the prompt.",
       },
     });
 

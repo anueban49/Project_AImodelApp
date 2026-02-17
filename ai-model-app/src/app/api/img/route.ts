@@ -12,7 +12,7 @@ export const POST = async (request: NextRequest) => {
     const ai = new GoogleGenAI({ apiKey });
 
     const response = await ai.models.generateContent({
-      model: "gemini-2.5-flash-image",
+      model: "gemini-3-pro-image-preview",
       contents: prompt,
       config: {
         systemInstruction:

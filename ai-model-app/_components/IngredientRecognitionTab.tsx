@@ -2,6 +2,7 @@
 import { useState, useEffect } from "react";
 import { Sparkles, FileText } from "lucide-react";
 import { useTheme } from "../ContextProviders/ThemeProvider";
+import { LoadingVisual } from "./LoadingVisual";
 export const IngredientRecTab = () => {
   const [loading, setLoading] = useState(false);
   const [inputValue, setInputValue] = useState("");
@@ -34,14 +35,18 @@ export const IngredientRecTab = () => {
       console.log("the thingy tht i converted into json:", data);
       setRaw(data.res);
       setReply(raw.split(" "));
-      console.log("reply", reply);
-      console.log("reply", reply);
+      setLoading(false);
     } catch (error) {
       console.log(error);
     }
   };
-  const splitted = raw.split(" ")
-  console.log(splitted)
+  const splitted = raw.split("\n");
+  console.log(splitted);
+  const boldtext = splitted.filter(
+    (item) => item.startsWith("**") && item.endsWith("**"),
+  );
+
+  // sort the items in array that has
   return (
     <>
       <div className={`flex flex-col gap-4`}>
@@ -54,8 +59,8 @@ export const IngredientRecTab = () => {
             setInputValue(e.target.value);
           }}
           placeholder="Describe your ingredients "
-          rows={8}
-          className={`no-scrollbar scroll-smooth resize-none p-2 focus:outline-none w-full aspect-7/2 rounded-2xl inset-shadow-sm ${theme === "dark" ? "dark inset-shadow-black" : "light inset-shadow-gray-500/50"}`}
+          rows={5}
+          className={`no-scrollbar scroll-smooth resize-none p-2 focus:outline-none w-full rounded-2xl inset-shadow-sm ${theme === "dark" ? "dark inset-shadow-black" : "light inset-shadow-gray-500/50"}`}
         ></textarea>
         <button
           onClick={() => {
@@ -69,7 +74,22 @@ export const IngredientRecTab = () => {
           className={`aspect-7/1 rounded-2xl inset-shadow-sm p-2 ${theme === "dark" ? "dark inset-shadow=-black" : "light inset-shadow-gray-300"}`}
         >
           <p className="font-bold">Ingredients:</p>
-          {raw}
+          {loading ? (
+            <LoadingVisual />
+          ) : (
+            <div className={`flex flex-col gap-2`}>
+              {splitted.map((line, index) => {
+                const isBold = line.startsWith("**") && line.endsWith("**");
+                const cleanedLine = line.replace(/\*\*/g, ""); // removes ALL ** from the line
+
+                return (
+                  <p key={index} className={isBold ? "font-bold" : ""}>
+                    {cleanedLine}
+                  </p>
+                );
+              })}
+            </div>
+          )}
         </div>
       </div>
     </>
