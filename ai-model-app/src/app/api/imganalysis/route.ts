@@ -1,9 +1,26 @@
 import OpenAI from "openai";
 import { NextResponse } from "next/server";
 const openai = new OpenAI();
-
+const rateLimit = new Map<string, number>();
 export async function POST(req: Request) {
   try {
+    const ip =
+      req.headers.get("x-forwarded-for") ||
+      req.headers.get("x-real-ip") ||
+      "unknown";
+
+    const now = Date.now();
+    const last = rateLimit.get(ip) ?? 0;
+
+    if (now - last < 2 * 60 * 1000) {
+      return NextResponse.json(
+        { error: "Request is limited to 1 per 2 mins" },
+        { status: 429 },
+      );
+    }
+
+    rateLimit.set(ip, now);
+    
     const { base64Image, mimeType } = await req.json();
 
     if (!base64Image) {
