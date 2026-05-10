@@ -1,14 +1,16 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useTheme } from "../ContextProviders/ThemeProvider";
-import { Sparkles, FileText } from "lucide-react";
+import { Sparkles } from "lucide-react";
 export const ImageGenerationTab = () => {
   const [image, setImage] = useState("");
   const [inputValue, setInputValue] = useState("");
   const { theme } = useTheme();
+  const [loading, setLoading] = useState(false);
 
   const handleGenerate = async () => {
     try {
+      setLoading(true);
       if (inputValue === "") {
         return;
       }
@@ -23,13 +25,25 @@ export const ImageGenerationTab = () => {
       });
       //the ai is supposedly have to send url... right?
       const data = await res.json();
-      if (data.success) {
-        setImage(`data:${data.mimeType};base64${data.image}`);
+      if (data.image) {
+        setImage(`data:image/png;base64,${data.image}`);
       }
     } catch (error) {
       console.log(error);
+    } finally {
+      setLoading(false);
     }
   };
+  const handleDownload = () => {
+  if (!image) return;
+
+  const link = document.createElement("a");
+  link.href = image; 
+  link.download = `generated-${Date.now()}.png`; 
+  document.body.appendChild(link); 
+  link.click();
+  document.body.removeChild(link); 
+};
   return (
     <>
       <div className={`flex flex-col gap-4`}>
@@ -52,12 +66,23 @@ export const ImageGenerationTab = () => {
             handleGenerate();
           }}
           className={`px-4 py-1.5 rounded-2xl shadow-md hover:shadow-none  ${theme === "dark" ? "dark shadow-black" : "light shadow-gray-300"}`}
+          disabled={loading}
         >
           Generate
         </button>
         {image ? (
-          <div className={`w-full aspect-4/3 rounded-2xl overflow-clip`}>
-            <img src={image} />
+          <div className="flex flex-col gap-2">
+            <div className={`w-full aspect-4/3 rounded-2xl overflow-clip`}>
+              <img src={image} />
+            </div>
+            <button
+              onClick={handleDownload}
+              className={`px-4 py-1.5 rounded-2xl shadow-md hover:shadow-none ${
+                theme === "dark" ? "dark shadow-black" : "light shadow-gray-300"
+              }`}
+            >
+              Download Image
+            </button>
           </div>
         ) : (
           <>No Image Generated</>

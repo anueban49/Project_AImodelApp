@@ -42,9 +42,6 @@ export const IngredientRecTab = () => {
   };
   const splitted = raw.split("\n");
   console.log(splitted);
-  const boldtext = splitted.filter(
-    (item) => item.startsWith("**") && item.endsWith("**"),
-  );
 
   // sort the items in array that has
   return (
@@ -58,7 +55,7 @@ export const IngredientRecTab = () => {
           onChange={(e) => {
             setInputValue(e.target.value);
           }}
-          placeholder="Describe your ingredients "
+          placeholder="Example: I had delicious stir fry noodles with shrimp today. The flavor of shrimp was complimenting the dough, but I'm not sure how it hadppened that way "
           rows={5}
           className={`no-scrollbar scroll-smooth resize-none p-2 focus:outline-none w-full rounded-2xl inset-shadow-sm ${theme === "dark" ? "dark inset-shadow-black" : "light inset-shadow-gray-500/50"}`}
         ></textarea>

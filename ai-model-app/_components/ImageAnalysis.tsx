@@ -18,8 +18,7 @@ export const ImageAnalysisTab = () => {
   const [result, setResult] = useState("");
   const [clicked, setClicked] = useState(false);
   const [loading, setLoading] = useState(false);
-
-  const inputRef = useRef<any>(null);
+  const [error, setError] = useState<string | null>(null);
 
   const handleFile = (file: File) => {
     //essentially reads the file that has been put into the input and converts it into a string?
@@ -42,31 +41,39 @@ export const ImageAnalysisTab = () => {
     setResult("");
     setClicked(false);
   };
-  const handleGenerate = async () => {
-    setLoading(true);
-    try {
-      if (!inputRef.current) {
-        inputRef.current = await pipeline(
-          "image-to-text",
-          "Xenova/vit-gpt2-image-captioning",
-        );
-      }
 
-      const output = await inputRef.current(preview, {
-        max_new_tokens: 100,
-        temperature: 0.7,
-        context: "give me more detailed response",
-          num_sms: 4,
+  const handleGenerate = async (file: File) => {
+    const base64Image = await new Promise<string>((resolve) => {
+      const reader = new FileReader();
+      reader.onload = () => {
+        const result = reader.result as string;
+        resolve(result.split(",")[1]);
+      };
+      reader.readAsDataURL(file);
+    });
+    try {
+      setLoading(true);
+      if (!file) {
+        return;
+      }
+      const res = await fetch("/api/imganalysis", {
+        method: "POST",
+        headers: {
+          "Content-type": "application/json",
+        },
+        body: JSON.stringify({ base64Image, mimeType: file.type }),
       });
 
-      if (Array.isArray(output) && output.length > 0) {
-        const caption = (output[0] as { generated_text: string })
-          .generated_text;
-        setResult(caption);
+      if (res.ok) {
+        const data = await res.json();
+        setResult(data.result);
+        console.log("result", data);
       }
     } catch (error) {
-      console.error(error);
-      setLoading(false);
+      console.log(error);
+      setError(
+        error instanceof Error ? error.message : "An unknown error occurred",
+      );
     } finally {
       setLoading(false);
     }
@@ -77,7 +84,7 @@ export const ImageAnalysisTab = () => {
       <div className="flex flex-col gap-4">
         <h1 className="flex gap-4 font-bold">
           <Sparkles />
-          Robotond zurag ogood taniuldag heseg
+          Image Analysis Section
         </h1>
 
         <div
@@ -106,8 +113,10 @@ export const ImageAnalysisTab = () => {
                   </button>
                   <button
                     onClick={() => {
-                      handleGenerate();
-                      setClicked(true);
+                      if (file) {
+                        handleGenerate(file);
+                        setClicked(true);
+                      }
                     }}
                     className={`uploadBtn ${clicked && "hidden"}
                     p-2 text-sm rounded-2xl flex gap-2 absolute bottom-2 hover:opacity-55  shadow-md ${theme === "dark" ? "dark shadow-black" : "light  shadow-gray-400"}`}
@@ -128,7 +137,8 @@ export const ImageAnalysisTab = () => {
               <p
                 className={`text-gray-400 ${theme === "dark" && "text-zinc-700"}`}
               >
-                Oruulah zurga songood iishee huscih
+                Choose the image you want to analyze or simply drag and drop it
+                here
               </p>
               <FileInput
                 width={40}
@@ -142,7 +152,7 @@ export const ImageAnalysisTab = () => {
         </div>
         <h1 className="flex font-bold gap-4">
           <FileText />
-          Robotiin hariu(?)
+          Image Analysis Result
         </h1>
         {clicked ? (
           <>
@@ -154,7 +164,19 @@ export const ImageAnalysisTab = () => {
               <p
                 className={`py-2 px-4 rounded-xl inset-shadow-sm ${theme === "dark" ? "dark inset-shadow-black" : "light inset-shadow-gray-300"}`}
               >
-                {result ? <>{result}...?</> : <></>}
+                {error ? (
+                  <p className="text-red-500">{error}</p>
+                ) : result ? (
+                  <>
+                    {result.split("\n").map((line, i) => (
+                      <p key={i} className={line === "" ? "mt-2" : ""}>
+                        {line}
+                      </p>
+                    ))}
+                  </>
+                ) : (
+                  <></>
+                )}
               </p>
             )}
           </>
