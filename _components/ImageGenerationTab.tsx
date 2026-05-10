@@ -35,15 +35,15 @@ export const ImageGenerationTab = () => {
     }
   };
   const handleDownload = () => {
-  if (!image) return;
+    if (!image) return;
 
-  const link = document.createElement("a");
-  link.href = image; 
-  link.download = `generated-${Date.now()}.png`; 
-  document.body.appendChild(link); 
-  link.click();
-  document.body.removeChild(link); 
-};
+    const link = document.createElement("a");
+    link.href = image;
+    link.download = `generated-${Date.now()}.png`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
   return (
     <>
       <div className={`flex flex-col gap-4`}>
@@ -61,15 +61,20 @@ export const ImageGenerationTab = () => {
           className={` w-full aspect-9/1 rounded-2xl inset-shadow-sm p-2 resize-none no-scrollbar ${theme === "dark" ? "dark inset-shadow-black" : "light inset-shadow-gray-500/50"}`}
           placeholder="Describe your prompt"
         ></textarea>
-        <button
-          onClick={() => {
-            handleGenerate();
-          }}
-          className={`px-4 py-1.5 rounded-2xl shadow-md hover:shadow-none  ${theme === "dark" ? "dark shadow-black" : "light shadow-gray-300"}`}
-          disabled={loading}
-        >
-          Generate
-        </button>
+        {loading ? (
+          <>Loading...</>
+        ) : (
+          <button
+            onClick={() => {
+              handleGenerate();
+            }}
+            className={`px-4 py-1.5 rounded-2xl shadow-md hover:shadow-none  ${theme === "dark" ? "dark shadow-black" : "light shadow-gray-300"}`}
+            disabled={loading}
+          >
+            Generate
+          </button>
+        )}
+
         {image ? (
           <div className="flex flex-col gap-2">
             <div className={`w-full aspect-4/3 rounded-2xl overflow-clip`}>
