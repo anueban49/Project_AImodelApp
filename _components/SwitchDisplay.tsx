@@ -1,5 +1,5 @@
 "use client";
-import { useState, useRef, ReactEventHandler } from "react";
+import { useState } from "react";
 
 import { useTheme } from "../ContextProviders/ThemeProvider";
 import { ChatBalls } from "./chatballs";
@@ -32,7 +32,7 @@ export function SoligddogTovcuud() {
       case "Image creator":
         return <ImageGenerationTab />;
       default:
-        return <></>;
+        return null;
     }
   };
 

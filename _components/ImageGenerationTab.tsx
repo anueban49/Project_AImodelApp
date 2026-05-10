@@ -1,5 +1,6 @@
 "use client";
 import { useState } from "react";
+import Image from "next/image";
 import { useTheme } from "../ContextProviders/ThemeProvider";
 import { Sparkles } from "lucide-react";
 export const ImageGenerationTab = () => {
@@ -45,8 +46,7 @@ export const ImageGenerationTab = () => {
     document.body.removeChild(link);
   };
   return (
-    <>
-      <div className={`flex flex-col gap-4`}>
+    <div className={`flex flex-col gap-4`}>
         <p
           className={`${theme === "dark" ? "" : ""} flex gap-4 py-2 font-bold`}
         >
@@ -62,9 +62,10 @@ export const ImageGenerationTab = () => {
           placeholder="Describe your prompt"
         ></textarea>
         {loading ? (
-          <>Loading...</>
+          "Loading..."
         ) : (
           <button
+            type="button"
             onClick={() => {
               handleGenerate();
             }}
@@ -78,9 +79,10 @@ export const ImageGenerationTab = () => {
         {image ? (
           <div className="flex flex-col gap-2">
             <div className={`w-full aspect-4/3 rounded-2xl overflow-clip`}>
-              <img src={image} />
+              <Image src={image} alt="Generated" width={1024} height={768} />
             </div>
             <button
+              type="button"
               onClick={handleDownload}
               className={`px-4 py-1.5 rounded-2xl shadow-md hover:shadow-none ${
                 theme === "dark" ? "dark shadow-black" : "light shadow-gray-300"
@@ -90,9 +92,8 @@ export const ImageGenerationTab = () => {
             </button>
           </div>
         ) : (
-          <>No Image Generated</>
+          "No Image Generated"
         )}
       </div>
-    </>
-  );
-};
+    );
+  };

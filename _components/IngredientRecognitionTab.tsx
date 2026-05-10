@@ -1,6 +1,6 @@
 " use client";
-import { useState, useEffect } from "react";
-import { Sparkles, FileText } from "lucide-react";
+import { useState } from "react";
+import { Sparkles } from "lucide-react";
 import { useTheme } from "../ContextProviders/ThemeProvider";
 import { LoadingVisual } from "./LoadingVisual";
 export const IngredientRecTab = () => {

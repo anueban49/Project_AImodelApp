@@ -1,6 +1,6 @@
 "use client";
+import type { ReactNode } from "react";
 import { useTheme } from "../ContextProviders/ThemeProvider";
-import { ReactNode, use } from "react";
 import { Header } from "./Header";
 export const BaseStructure = ({ children }: { children: ReactNode }) => {
   const { theme } = useTheme();

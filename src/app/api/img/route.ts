@@ -24,7 +24,7 @@ export async function POST(req: Request) {
       quality: "medium",
     });
 
-    if (result && result.data && result.data.length > 0) {
+    if (result?.data && result.data.length > 0) {
       const base64 = result.data[0].b64_json;
       return NextResponse.json({ image: base64 });
     }

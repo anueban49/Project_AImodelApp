@@ -1,8 +1,7 @@
 " use client";
-import { useState, useEffect, ReactEventHandler } from "react";
-import { ReactNode } from "react";
-import { useTheme } from "../ContextProviders/ThemeProvider";
 import { MessageCircle, X } from "lucide-react";
+import { useState } from "react";
+import { useTheme } from "../ContextProviders/ThemeProvider";
 import { Assistant } from "./Assistant";
 //flow: use sends message -> sent to ai model
 
@@ -20,6 +19,7 @@ export const ChatBalls = () => {
   return (
     <div className="w-full h-full">
       <button
+        type="button"
         onClick={() => {
           toggle();
         }}
@@ -31,6 +31,7 @@ export const ChatBalls = () => {
       {open ? (
         <Assistant>
           <button
+            type="button"
             onClick={() => {
               toggle();
             }}
@@ -40,7 +41,7 @@ export const ChatBalls = () => {
           </button>
         </Assistant>
       ) : (
-        <></>
+        null
       )}
     </div>
   );

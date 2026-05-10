@@ -7,9 +7,8 @@ import {
   X,
   FileUpIcon,
 } from "lucide-react";
-import { useState, useRef } from "react";
+import { useState} from "react";
 import { useTheme } from "../ContextProviders/ThemeProvider";
-import { pipeline, TextStreamer } from "@huggingface/transformers";
 import { LoadingVisual } from "./LoadingVisual";
 export const ImageAnalysisTab = () => {
   const { theme } = useTheme();
